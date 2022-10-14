@@ -1,3 +1,3 @@
-defmodule Polygon.Options do
-  import Polygon
-end
+# defmodule Polygon.Options do
+#   import Polygon
+# end

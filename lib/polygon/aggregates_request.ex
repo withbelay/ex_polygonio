@@ -1,4 +1,4 @@
-defmodule Polygon.Stocks.Aggregates.Request do
+defmodule Polygon.AggregatesRequest do
   use Ecto.Schema
   import Ecto.Changeset
 

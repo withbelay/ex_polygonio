@@ -24,3 +24,4 @@ ex_polygonio-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+testing.livemd

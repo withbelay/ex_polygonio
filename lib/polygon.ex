@@ -24,4 +24,9 @@ defmodule Polygon do
 
     Tesla.client(middleware)
   end
+
+  defdelegate quotes(client, request), to: Polygon.Quotes, as: :request
+  defdelegate trades(client, request), to: Polygon.Trades, as: :request
+  defdelegate aggregates(client, request), to: Polygon.Aggregates, as: :request
+  defdelegate daily_open_close(client, request), to: Polygon.DailyOpenClose, as: :request
 end
