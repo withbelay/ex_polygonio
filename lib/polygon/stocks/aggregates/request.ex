@@ -1,20 +1,20 @@
-defmodule Polygon.Stocks.AggregatesRequest do
+defmodule Polygon.Stocks.Aggregates.Request do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @type timespan() :: :minute | :hour | :day | :week | :month | :quarter | :year
-  @type sort() :: :asc | :desc
+  @type(timespan() :: :minute, :hour, :day, :week, :month, :quarter, :year)
+  @type(sort() :: :asc, :desc)
 
-  # @type t :: %__MODULE__{
-  #         stocks_ticker: String.t(),
-  #         multiplier: non_neg_integer(),
-  #         timespan: @timespan(),
-  #         from: DateTime.t(),
-  #         to: DateTime.t(),
-  #         adjusted: boolean(),
-  #         sort: @sort(),
-  #         limit: non_neg_integer()
-  #       }
+  @type t() :: %__MODULE__{
+          stocks_ticker: String.t(),
+          multiplier: non_neg_integer(),
+          timespan: timespan(),
+          from: DateTime.t(),
+          to: DateTime.t(),
+          adjusted: boolean(),
+          sort: sort(),
+          limit: non_neg_integer()
+        }
   @derive {Jason.Encoder, except: [:__struct__]}
   embedded_schema do
     field(:stocks_ticker, :string)
@@ -45,6 +45,6 @@ defmodule Polygon.Stocks.AggregatesRequest do
     %__MODULE__{}
     |> cast(params, ~w(stocks_ticker multiplier timespan from to adjusted sort limit)a)
     |> validate_required(~w(stocks_ticker multiplier timespan from to)a)
-    |> apply_changes()
+    |> apply_action(:ignore)
   end
 end

@@ -1,6 +1,17 @@
-defmodule Polygon.Stocks.AggregateResult do
+defmodule Polygon.Stocks.Aggregates.Result do
   use Ecto.Schema
   import Ecto.Changeset
+
+  @type t :: %__MODULE__{
+          c: Decimal.t(),
+          h: Decimal.t(),
+          l: Decimal.t(),
+          n: integer(),
+          o: Decimal.t(),
+          t: integer(),
+          v: Decimal.t(),
+          vw: Decimal.t()
+        }
   @primary_key false
   embedded_schema do
     field(:c, :decimal)
@@ -19,19 +30,19 @@ defmodule Polygon.Stocks.AggregateResult do
   end
 end
 
-defmodule Polygon.Stocks.AggregatesResponse do
+defmodule Polygon.Stocks.Aggregates.Response do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # @type t :: %__MODULE__{
-  #         ticker: String.t(),
-  #         adjusted: boolean(),
-  #         queryCount: integer(),
-  #         request_id: String.t(),
-  #         results_count: integer(),
-  #         status: String.t(),
-  #         results: list(%AggregateResult{})
-  #       }
+  @type t :: %__MODULE__{
+          ticker: String.t(),
+          adjusted: boolean(),
+          queryCount: integer(),
+          request_id: String.t(),
+          results_count: integer(),
+          status: String.t(),
+          results: list(AggregateResult.t())
+        }
   @derive {Jason.Encoder, except: [:__struct__]}
   @primary_key false
   embedded_schema do
@@ -42,7 +53,7 @@ defmodule Polygon.Stocks.AggregatesResponse do
     field(:results_count, :integer)
     field(:status, :string)
 
-    embeds_many(:results, Polygon.Stocks.AggregateResult)
+    embeds_many(:results, Polygon.Stocks.Aggregates.Result)
   end
 
   def build(params) do

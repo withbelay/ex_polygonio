@@ -1,6 +1,9 @@
 defmodule Polygon do
   require Logger
 
+  @type(timespan() :: :minute, :hour, :day, :week, :month, :quarter, :year)
+  @type(sort() :: :asc, :desc)
+
   def client do
     case Application.fetch_env(:polygon, :key) do
       {:ok, key} ->
