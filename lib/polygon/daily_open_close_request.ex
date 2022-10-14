@@ -2,16 +2,11 @@ defmodule Polygon.DailyOpenCloseRequest do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # @type t :: %__MODULE__{
-  #         ticker: String.t(),
-  #         multiplier: non_neg_integer(),
-  #         timespan: @timespan(),
-  #         from: DateTime.t(),
-  #         to: DateTime.t(),
-  #         adjusted: boolean(),
-  #         sort: @sort(),
-  #         limit: non_neg_integer()
-  #       }
+  @type t :: %__MODULE__{
+          ticker: String.t(),
+          date: DateTime.t(),
+          adjusted: boolean()
+        }
   @derive {Jason.Encoder, except: [:__struct__]}
   embedded_schema do
     field(:ticker, :string)

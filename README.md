@@ -19,3 +19,5 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/ex_polygonio>.
 
+## Notes
+The polygon.io website uses a javascript file to build it's documentation page. And pulling that json file provides a lot of useful data on the inputs available

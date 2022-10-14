@@ -5,9 +5,13 @@ defmodule Polygon.DailyOpenClose do
   @spec request(Tesla.Client.t(), DailyOpenCloseRequest.t() | map()) ::
           {:error, any} | {:ok, map()}
   def request(client, %DailyOpenCloseRequest{} = req) do
-    with {:ok, result} <- Tesla.get(client, DailyOpenCloseRequest.to_url(req)) do
+    with {:ok, %{body: %{"status" => status}} = result} when status in ~w(OK DELAYED) <-
+           Tesla.get(client, DailyOpenCloseRequest.to_url(req)) do
       {:ok, result.body}
-      # Response.build(result.body)
+    else
+      {:ok, %{body: %{"status" => "NOT_AUTHORIZED"}}} -> {:error, :not_authorized}
+      {:ok, result} -> {:error, result}
+      {:error, reason} -> {:error, reason}
     end
   end
 
