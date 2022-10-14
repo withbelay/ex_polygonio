@@ -14,7 +14,8 @@ defmodule Polygon.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Polygon.Application, []}
     ]
   end
 
@@ -25,6 +26,7 @@ defmodule Polygon.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
       {:ecto, "~>3.9.1"},
       {:ex_rated, "~> 2.0"},
+      {:finch, "~>0.3"},
       {:jason, "~> 1.2"},
       {:tesla, "~> 1.4.4"},
       {:websocket_client, "~> 1.4.2"},

@@ -19,10 +19,11 @@ defmodule Polygon do
       {Tesla.Middleware.BaseUrl, "https://api.polygon.io/"},
       {Tesla.Middleware.Headers, [{"Authorization", "Bearer #{polygon_key}"}]},
       Tesla.Middleware.JSON
-      # PolygonRateLimit
     ]
 
-    Tesla.client(middleware)
+    adapter = {Tesla.Adapter.Finch, name: Finch}
+
+    Tesla.client(middleware, adapter)
   end
 
   defdelegate quotes(client, request), to: Polygon.Quotes, as: :request
