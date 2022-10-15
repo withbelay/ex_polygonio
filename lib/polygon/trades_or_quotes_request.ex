@@ -1,4 +1,4 @@
-defmodule Polygon.TradesRequest do
+defmodule Polygon.TradesOrQuotesRequest do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.Changeset
@@ -24,11 +24,12 @@ defmodule Polygon.TradesRequest do
     field(:limit, :integer)
   end
 
-  def to_url(%__MODULE__{} = req) do
+  def to_url(url_path, %__MODULE__{} = req) do
     # Need to format the to / from dates
     # Either a date with the format YYYY-MM-DD or a millisecond timestamp.
     # TODO: PART of this url is the only difference between it and quotes/request.ex
-    url = "/v3/trades/#{req.ticker}"
+    # "/v3/trades/#{req.ticker}"
+    url = url_path <> req.ticker
 
     # filter the optional queries components
     query =

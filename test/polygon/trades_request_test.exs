@@ -1,5 +1,5 @@
-defmodule Polygon.TradesRequestTest do
-  alias Polygon.TradesRequest
+defmodule Polygon.TradesOrQuotesRequestTest do
+  alias Polygon.TradesOrQuotesRequest
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
   require Logger
@@ -23,28 +23,24 @@ defmodule Polygon.TradesRequestTest do
         assert {:ok, req} =
                  %{"ticker" => "AAPL"}
                  |> Map.put(timestamp_field, @timestamp_val)
-                 |> TradesRequest.build()
+                 |> TradesOrQuotesRequest.build()
 
         timestamp_url_field = String.replace(timestamp_field, "_", ".")
 
         assert String.replace(@expected_url, "FIELD", timestamp_url_field) ==
-                 TradesRequest.to_url(req)
+                 TradesOrQuotesRequest.to_url("/v3/trades/", req)
       end
     end
   end
 
-  # test "to_url/1" do
-  #   assert {:ok, req} = TradesRequest.build(%{ticker: "AAPL"})
-  #   assert "/v3/trades/AAPL" == TradesRequest.to_url(req)
-
-  #   date = DateTime.new!(Date.new!(2022, 1, 2), Time.new!(10, 5, 12))
-
-  #   timestamp = DateTime.to_unix(date, :nanosecond)
-
-  #   assert {:ok, req} = TradesRequest.build(%{ticker: "AAPL", timestamp: date})
-  #   assert "/v3/trades/AAPL?timestamp=#{timestamp}" == TradesRequest.to_url(req)
-  # end
-
   test "build/1 - valid" do
+    assert {:error, changeset} = TradesOrQuotesRequest.build(%{})
+
+    assert {:error, changeset} =
+             TradesOrQuotesRequest.build(%{
+               ticker: "AAPL",
+               timestamp: DateTime.utc_now(),
+               timestamp_lt: DateTime.utc_now()
+             })
   end
 end
