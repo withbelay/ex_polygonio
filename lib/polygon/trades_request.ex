@@ -1,6 +1,8 @@
 defmodule Polygon.TradesRequest do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Ecto.Changeset
+  require Logger
 
   @type t() :: %__MODULE__{
           ticker: String.t(),
@@ -14,12 +16,12 @@ defmodule Polygon.TradesRequest do
   @derive {Jason.Encoder, except: [:__struct__]}
   embedded_schema do
     field(:ticker, :string)
-    field(:timestamp, :utc_datetime)
-    field(:timestamp_lt, :utc_datetime)
-    field(:timestamp_lte, :utc_datetime)
-    field(:timestamp_gt, :utc_datetime)
-    field(:timestamp_gte, :utc_datetime)
-    field(:limit, :integer, default: 50_000)
+    field(:timestamp, :string)
+    field(:timestamp_lt, :string)
+    field(:timestamp_lte, :string)
+    field(:timestamp_gt, :string)
+    field(:timestamp_gte, :string)
+    field(:limit, :integer)
   end
 
   def to_url(%__MODULE__{} = req) do
@@ -37,6 +39,9 @@ defmodule Polygon.TradesRequest do
         {:ticker, _} -> false
         _ -> true
       end)
+      |> Enum.map(fn {key, value} ->
+        {String.replace(Atom.to_string(key), "_", "."), value}
+      end)
       |> URI.encode_query(:rfc3986)
 
     case String.length(query) do
@@ -45,13 +50,59 @@ defmodule Polygon.TradesRequest do
     end
   end
 
+  # defp serialize(%DateTime{} = value), do: DateTime.to_unix(value, :nanosecond)
+  # defp serialize(%Date{} = value), do: Date.to_string(value)
+  # defp serialize(value), do: value
+
   def build(params) do
+    params = convert_dates_to_strings(params)
+
     %__MODULE__{}
     |> cast(
       params,
-      ~w(ticker timestamp timestamp_lt timestamp_lte timestamp_gt timestamp_gte limit)a
+      ~w(ticker limit timestamp timestamp_lt timestamp_lte timestamp_gt timestamp_gte)a
     )
     |> validate_required(~w(ticker)a)
+    |> validate_one_at_most(~w(timestamp timestamp_lt timestamp_lte timestamp_gt timestamp_gte)a)
     |> apply_action(:ignore)
+  end
+
+  defp convert_dates_to_strings(params) do
+    keys = Map.keys(params)
+
+    timestamp_keys =
+      keys
+      |> Enum.filter(
+        &(&1
+          |> Kernel.to_string()
+          |> String.starts_with?("timestamp"))
+      )
+
+    updated_dates =
+      timestamp_keys
+      |> Enum.map(&{&1, convert_date_to_string(params[&1])})
+      |> Map.new()
+
+    Map.merge(params, updated_dates)
+  end
+
+  defp convert_date_to_string(date) when is_nil(date), do: nil
+  defp convert_date_to_string(%Date{} = date), do: Date.to_string(date)
+
+  defp convert_date_to_string(%DateTime{} = date),
+    do: DateTime.to_unix(date, :nanosecond) |> to_string()
+
+  defp convert_date_to_string(date) when is_binary(date), do: date
+
+  defp validate_one_at_most(%Changeset{} = changeset, fields, _opts \\ []) do
+    num_timestamps =
+      fields
+      |> Enum.map(&get_field(changeset, &1))
+      |> Enum.filter(&(!is_nil(&1)))
+      |> Enum.count()
+
+    if num_timestamps < 2,
+      do: changeset,
+      else: add_error(changeset, :timestamp, "Only 1 timestamp filter can be set")
   end
 end
