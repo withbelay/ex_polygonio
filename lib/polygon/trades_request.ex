@@ -6,11 +6,11 @@ defmodule Polygon.TradesRequest do
 
   @type t() :: %__MODULE__{
           ticker: String.t(),
-          timestamp: DateTime.t(),
-          timestamp_lt: DateTime.t(),
-          timestamp_lte: DateTime.t(),
-          timestamp_gt: DateTime.t(),
-          timestamp_gte: DateTime.t(),
+          timestamp: String.t(),
+          timestamp_lt: String.t(),
+          timestamp_lte: String.t(),
+          timestamp_gt: String.t(),
+          timestamp_gte: String.t(),
           limit: non_neg_integer()
         }
   @derive {Jason.Encoder, except: [:__struct__]}
@@ -39,9 +39,7 @@ defmodule Polygon.TradesRequest do
         {:ticker, _} -> false
         _ -> true
       end)
-      |> Enum.map(fn {key, value} ->
-        {String.replace(Atom.to_string(key), "_", "."), value}
-      end)
+      |> Enum.map(fn {key, value} -> {rename_key(key), value} end)
       |> URI.encode_query(:rfc3986)
 
     case String.length(query) do
@@ -49,10 +47,6 @@ defmodule Polygon.TradesRequest do
       _ -> url <> "?#{query}"
     end
   end
-
-  # defp serialize(%DateTime{} = value), do: DateTime.to_unix(value, :nanosecond)
-  # defp serialize(%Date{} = value), do: Date.to_string(value)
-  # defp serialize(value), do: value
 
   def build(params) do
     params = convert_dates_to_strings(params)
@@ -71,12 +65,7 @@ defmodule Polygon.TradesRequest do
     keys = Map.keys(params)
 
     timestamp_keys =
-      keys
-      |> Enum.filter(
-        &(&1
-          |> Kernel.to_string()
-          |> String.starts_with?("timestamp"))
-      )
+      Enum.filter(keys, &(&1 |> Kernel.to_string() |> String.starts_with?("timestamp")))
 
     updated_dates =
       timestamp_keys
@@ -93,6 +82,8 @@ defmodule Polygon.TradesRequest do
     do: DateTime.to_unix(date, :nanosecond) |> to_string()
 
   defp convert_date_to_string(date) when is_binary(date), do: date
+
+  defp rename_key(atom_key), do: String.replace(Atom.to_string(atom_key), "_", ".")
 
   defp validate_one_at_most(%Changeset{} = changeset, fields, _opts \\ []) do
     num_timestamps =
